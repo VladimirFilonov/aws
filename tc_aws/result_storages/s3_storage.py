@@ -31,7 +31,9 @@ class Storage(AwsStorage, BaseStorage):
         :rtype: string
         """
         path = self._normalize_path(self.context.request.url)
-
+        if not context.config.get('TC_AWS_STORE_SAFEURL'):
+            path = os.path.join(path.split("/")[1:])
+            
         self.set(bytes, path)
 
         return path
@@ -46,6 +48,9 @@ class Storage(AwsStorage, BaseStorage):
         if path is None:
             path = self.context.request.url
 
+        if not context.config.get('TC_AWS_STORE_SAFEURL'):
+            path = os.path.join(path.split("/")[1:])
+        
         def return_result(key):
             if key is None or self._get_error(key) or self.is_expired(key):
                 callback(None)
